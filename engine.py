@@ -7,8 +7,7 @@ def board_initialise():
         ["-","-","-","-","-","-","-"],
         ["-","-","-","-","-","-","-"],
         ["-","-","-","-","-","-","-"],
-        ["-","-","-","-","-","-","-"],
-        ["1","2","3","4","5","6","7"]]
+        ["-","-","-","-","-","-","-"]]
     return board
 
 def board_show(board):
@@ -17,7 +16,14 @@ def board_show(board):
         for j in range(len(board[i])):
             outputstring = outputstring + board[i][j] + "\t"
         outputstring = outputstring + "\n"
+    outputstring = outputstring + "\n" + board_index() 
     return outputstring
+
+def board_index():
+    indices = ""
+    for i in range(1,8):
+        indices = indices + str(i) + "\t"
+    return indices
     
 
 def setmark(board, player, choice):
