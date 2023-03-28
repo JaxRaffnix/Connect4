@@ -75,8 +75,6 @@ def check_win(board, player):
                 # diagonal right-left ascending
                 elif player_mark(player) == board[i][j] == board[i-1][j-1] == board[i-2][j-2] == board[i-3][j-3]:
                     return True
-                else:
-                    return False
             except IndexError:
                 continue
 
@@ -87,7 +85,8 @@ def undo(board, choice):
                 continue
             else:
                 board[i+1][choice] = "-"
+                break
         except IndexError:
             continue        
-        return board
+    return board
         

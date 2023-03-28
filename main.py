@@ -1,6 +1,5 @@
 # Goal: Create the game connect 4 for twoplayermode and singleplayer mode against AI
-# import os
-from time import sleep
+
 import engine as eg
 import PySimpleGUI as sg
 
@@ -9,8 +8,7 @@ board = eg.board_initialise()
 # start values
 player_current = 1
 turn = 1
-# undo_locked = False
-history = []
+choice_log = [0]*100
 
 layout = [[sg.Text(eg.player_status(player_current), key="-PLAYER-"), sg.Push(), sg.Text(eg.turn_print(turn), key="-TURN-")],
           [sg.Text(eg.board_print(board), key="-BOARD-")],
@@ -25,34 +23,26 @@ while True:
     event, values = window.read()
     if event in (sg.WIN_CLOSED, "Abort Round", "Exit Game"):
         break
-    elif event == "Undo":
-        # if undo_locked == True:
-            # print("You can only undo the last move.")
-            # continue
-        window["-BOARD-"].update(eg.board_print(eg.undo(board, history[turn-2])))
+    elif event == "Undo" and turn > 1:
         turn -= 1
+        window["-BOARD-"].update(eg.board_print(eg.undo(board, choice_log[turn])))
         window["-TURN-"].update(eg.turn_print(turn))
-        # undo_locked = True
-        continue
+        player_current = eg.player_switch(player_current)
+        window["-PLAYER-"].update(eg.player_status(player_current))
     elif event in ["1","2","3","4","5","6","7"]:
         try:
             choice = int(event) - 1
-            history.append(choice)
+            choice_log[turn] = choice
             window['-BOARD-'].update(eg.board_print(eg.setmark(board, player_current, choice)))    
         except TypeError:
-            print("Row {} has been filled. Choose a different row.".format(choice+1))
-            continue  
-        if eg.check_win(board, player_current)== True:
-            print("Win for player {}!".format(eg.player_mark(player_current)))
-            turn += 1
-            window["-TURN-"].update(eg.turn_print(turn))
+            print(f"Row {choice+1} has been filled. Choose a different row.")
+            continue
+        if eg.check_win(board, player_current) == True:
             window.refresh()
-            sg.popup("Testx")
-            sleep(3)
+            sg.popup(f"Win for player {eg.player_mark(player_current)}!")
             break
-        player_current = eg.player_switch(player_current)
-        window["-PLAYER-"].update(eg.player_status(player_current))
         turn += 1
         window["-TURN-"].update(eg.turn_print(turn))
-        undo_locked = False
+        player_current = eg.player_switch(player_current)
+        window["-PLAYER-"].update(eg.player_status(player_current))
 window.close()
