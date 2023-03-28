@@ -5,5 +5,5 @@ class color:
 # SYMBOL_1 = color.BLUE + "O" + color.END
 # SYMBOL_2 = color.YELLOW + "X" + color.END
 
-SYMBOL_1 = "O" 
-SYMBOL_2 = "X" 
+SYMBOL_1 = "OOO" 
+SYMBOL_2 = "XXX" 

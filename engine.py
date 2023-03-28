@@ -1,92 +1,70 @@
 import library
 
-def board_initialise():
-    board = [
-        ["-","-","-","-","-","-","-"],
-        ["-","-","-","-","-","-","-"],
-        ["-","-","-","-","-","-","-"],
-        ["-","-","-","-","-","-","-"],
-        ["-","-","-","-","-","-","-"],
-        ["-","-","-","-","-","-","-"]]
+COLUMNS = 7
+ROWS = 6
+
+def Board_Initialise():
+    board = [["-"] * COLUMNS for i in range(ROWS)]
     return board
 
-def board_print(board):
+def Board_Print(board):
     string = ""
-    for i in range(len(board)):
-        for j in range(len(board[i])):
-            string = string + board[i][j] + "\t"
+    for row in reversed(range(ROWS)):
+        for col in range(COLUMNS):
+            string += board[row][col] + "\t"
         string += "\n"
     return string
-
-def board_index(board):
-    indices = ""
-    for i in range(1,board_size(board)):
-        indices = indices + str(i) + "\t"
-    return indices
     
-def setmark(board, player, choice):
-    for i in reversed(range(len(board))):
-        if board[i][choice] == player_mark(1) or board[i][choice] == player_mark(2):
+def Setmark(board, player, choice):
+    for row in range(ROWS):
+        if board[row][choice] in { Player_Mark(player), Player_Mark(Player_Switch(player)) }:
             continue
         else:
-            board[i][choice] = player_mark(player)
+            board[row][choice] = Player_Mark(player)
             return board
 
-def player_mark(player):
+def Player_Mark(player):
     if player == 1:
         return library.SYMBOL_1
     elif player == 2:
         return library.SYMBOL_2
 
-def player_switch(player):
-    if player == 1:
-        return 2
-    elif player == 2:
-        return 1
+def Player_Switch(player):
+    return 3 - player
 
-def player_status(player):
-    return "Current Player: " + player_mark(player)
+def Check_Win(board, player):
+    for row in range(ROWS):
+        for col in range(COLUMNS -3):
+            if Player_Mark(player) == board[row][col] == board[row][col+1] == board[row][col+2] == board[row][col+3]:
+                return True
+    # vertical
+    for row in range(ROWS -3):
+        for col in range(COLUMNS):
+            if Player_Mark(player) == board[row][col] == board[row+1][col] == board[row+2][col] == board[row+3][col]:
+                return True
+    # diagonal right-left descending
+    for row in range(ROWS -3, ROWS):
+        for col in range(COLUMNS -3):
+            if Player_Mark(player) == board[row][col] == board[row-1][col+1] == board[row-2][col+2] == board[row-3][col+3]:
+                return True
+    # diagonal left-right ascending
+    for row in range(ROWS -3):
+        for col in range(COLUMNS -3):
+            if Player_Mark(player) == board[row][col] == board[row+1][col+1] == board[row+2][col+2] == board[row+3][col+3]:
+                return True
+    return False
 
-def turn_print(turn):
-    return "Turn: " + str(turn)
+def Check_Draw(turn):
+    if turn >= 42:
+        return True
+    return False
 
-def board_size(board):
-    return len(board[0]) +1
-
-def check_win(board, player):
-    for i in range(len(board)):
-        for j in range(len(board[i])):
-            try:
-                # horizontal
-                if player_mark(player) == board[i][j] == board[i][j+1] == board[i][j+2] == board[i][j+3]:
-                    return True
-                # vertical            
-                elif player_mark(player) == board[i][j] == board[i-1][j] == board[i-2][j] == board[i-3][j]:
-                    return True
-                # diagonal left-right ascending
-                elif player_mark(player) == board[i][j] == board[i+1][j-1] == board[i+2][j-2] == board[i+3][j-3]:
-                    return True
-                # diagonal right-left descending
-                elif player_mark(player) == board[i][j] == board[i-1][j+1] == board[i-2][j+2] == board[i-3][j+3]:
-                    return True
-                # diagonal left-right descending
-                elif player_mark(player) == board[i][j] == board[i+1][j+1] == board[i+2][j+2] == board[i+3][j+3]:
-                    return True
-                # diagonal right-left ascending
-                elif player_mark(player) == board[i][j] == board[i-1][j-1] == board[i-2][j-2] == board[i-3][j-3]:
-                    return True
-            except IndexError:
-                continue
-
-def undo(board, choice):
-    for i in reversed(range(len(board))):
-        try:
-            if board[i][choice] == player_mark(1) or board[i][choice] == player_mark(2):
-                continue
-            else:
-                board[i+1][choice] = "-"
-                break
-        except IndexError:
-            continue        
+def Undo(board, player, choice):
+    for row in reversed(range(ROWS)):
+        if board[row][choice] in { Player_Mark(player),  Player_Mark(Player_Switch(player)) }:
+            continue
+        else:
+            board[row][choice] = "-"
+            break
     return board
         
