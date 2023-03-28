@@ -2,9 +2,10 @@ import library
 
 COLUMNS = 7
 ROWS = 6
+DEFAULT_MARK = "-"
 
 def Board_Initialise():
-    board = [["-"] * COLUMNS for i in range(ROWS)]
+    board = [[DEFAULT_MARK] * COLUMNS for i in range(ROWS)]
     return board
 
 def Board_Print(board):
@@ -17,7 +18,7 @@ def Board_Print(board):
     
 def Setmark(board, player, choice):
     for row in range(ROWS):
-        if board[row][choice] in { Player_Mark(player), Player_Mark(Player_Switch(player)) }:
+        if board[row][choice] in ( Player_Mark(player), Player_Mark(Player_Switch(player)) ):
             continue
         else:
             board[row][choice] = Player_Mark(player)
@@ -59,12 +60,11 @@ def Check_Draw(turn):
         return True
     return False
 
-def Undo(board, player, choice):
+def Undo(board, choice):
     for row in reversed(range(ROWS)):
-        if board[row][choice] in { Player_Mark(player),  Player_Mark(Player_Switch(player)) }:
+        if board[row][choice] == DEFAULT_MARK:
             continue
         else:
-            board[row][choice] = "-"
+            board[row][choice] = DEFAULT_MARK
             break
     return board
-        

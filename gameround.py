@@ -22,12 +22,12 @@ def Round():
         if event in (psg.WIN_CLOSED, ABORT_STRING):
             winner = eng.Player_Switch(player)
             break
-        if event == EXIT_STRING:
+        elif event == EXIT_STRING:
             winner = -1
             break
         elif event == UNDO_STRING and turn > 1:
             turn -= 1
-            window["-BOARD-"].update(eng.Board_Print(eng.Undo(board, player, choice_history[turn])))
+            window["-BOARD-"].update(eng.Board_Print(eng.Undo(board, choice_history[turn])))
             player = Ui_Turn_Player(window, turn, player)
         elif event in [str(i) for i in range(8)]:
             try:
