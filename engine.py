@@ -3,57 +3,60 @@ import moves as mv
 from settings import *
 
 
-def Menu():
+def Start_Menu():
     # start values
     scores = [0, 0, 0]
     game = 0
 
-    window = psg.Window("Connect 4 Menu", Menu_Layout(
-        scores, game), scaling=UI_SCALING)
+    layout = [[psg.Text("Scoreboard")],
+              [psg.Text(Ui_Games(game), key="-GAMES-")],
+              [psg.Text(Ui_Scoreboard(scores), key="-SCOREBOARD-")],
+              [psg.Button(BUTTON_START), psg.Button(BUTTON_EXIT)]]
+
+    window = psg.Window("Connect 4 Menu", layout, scaling=UI_SCALING)
     while True:
         event, values = window.read()
         if event in (psg.WIN_CLOSED, BUTTON_EXIT):
             break
         elif event == BUTTON_START:
             game += 1
-            winner = Round(game)
+            window["-GAMES-"].update(Ui_Games(game))
+            window.refresh()
+            winner = Play_Round(game)
             if winner == -1:
                 break
             scores[winner] += 1
             window["-SCOREBOARD-"].update(Ui_Scoreboard(scores))
-            window["-GAMES-"].update(Ui_Games(game))
+
     window.close()
-    print(scores)
+    return scores
 
 
-def Menu_Layout(scores, game):
-    layout = [[psg.Text("Scoreboard")],
-              [psg.Text(Ui_Games(game), key="-GAMES-")],
-              [psg.Text(Ui_Scoreboard(scores), key="-SCOREBOARD-")],
-              [psg.Button(BUTTON_START), psg.Button(BUTTON_EXIT)]]
-    return layout
-
-
-def Round(game):
+def Play_Round(game):
     # start values
     player = 1
     turn = 1
     choice_history = [0] * CHOICE_HISTORY_MAX
-    board = mv.Board_Init()
+    board = [[DEFAULT_MARK] * COLUMNS for _ in range(ROWS)]
 
-    window = psg.Window("Connect 4 Game", Round_Layout(
-        board, player, turn, game))
+    layout = [[psg.Text(Ui_Player(player), key="-PLAYER-"), psg.Push(), psg.Text(Ui_Game_Current(game)), psg.Text(Ui_Turn(turn), key="-TURN-")],
+              [psg.Text(Ui_Board(board), key="-BOARD-")],
+              [psg.Text(Ui_Index())],
+              [psg.Button(i) for i in range(1, COLUMNS+1)],
+              [psg.Button(BUTTON_UNDO), psg.Button(BUTTON_ABORT), psg.Button(BUTTON_EXIT)]]
+
+    window = psg.Window("Connect 4 Play", layout)
     while True:
         event, values = window.read()
         if event in (psg.WIN_CLOSED, BUTTON_ABORT):
-            winner = mv.Player_Switch(player)
+            winner = mv.Switch_Player(player)
             break
         elif event == BUTTON_EXIT:
             winner = -1
             break
         elif event == BUTTON_UNDO and turn > 1:
             turn -= 1
-            window["-BOARD-"].update(Ui_Board(mv.Player_Undo(board,
+            window["-BOARD-"].update(Ui_Board(mv.Undo_Mark(board,
                                      choice_history[turn])))
             player = Update_Turn_Player(window, turn, player)
         elif event in [str(i) for i in range(1, COLUMNS+1)]:
@@ -61,13 +64,13 @@ def Round(game):
                 choice = int(event) - 1
                 choice_history[turn] = choice
                 window['-BOARD-'].update(
-                    Ui_Board(mv.Player_Setmark(board, player, choice)))
+                    Ui_Board(mv.Set_Mark(board, player, choice)))
             except TypeError:
                 psg.popup(f"Row {choice+1} is full. Choose a different row.")
                 continue
             if mv.Check_Win(board, player):
                 window.refresh()
-                psg.popup(f"Win for player {mv.Player_Symbol(player)}!")
+                psg.popup(f"Win for player {mv.Get_Mark(player)}!")
                 winner = player
                 break
             elif mv.Check_Draw(turn):
@@ -81,58 +84,40 @@ def Round(game):
     return winner
 
 
-def Round_Layout(board, player_current, turn, game):
-    layout = [[psg.Text(Ui_Player(player_current), key="-PLAYER-"), psg.Push(), psg.Text(Ui_Game_Current(game)), psg.Text(Ui_Turn(turn), key="-TURN-")],
-              [psg.Text(Ui_Board(board), key="-BOARD-")],
-              [psg.Text(Ui_Index())],
-              [psg.Button(i) for i in range(1, COLUMNS+1)],
-              [psg.Button(BUTTON_UNDO), psg.Button(BUTTON_ABORT), psg.Button(BUTTON_EXIT)]]
-    return layout
-
-
-def Update_Turn_Player(window, turn, player_current):
+def Update_Turn_Player(window, turn, player):
     window["-TURN-"].update(Ui_Turn(turn))
-    player_current = mv.Player_Switch(player_current)
-    window["-PLAYER-"].update(Ui_Player(player_current))
-    return player_current
+    player = mv.Switch_Player(player)
+    window["-PLAYER-"].update(Ui_Player(player))
+    return player
 
 
 def Ui_Board(board):
-    string = ""
-    for row in reversed(range(ROWS)):
-        for col in range(COLUMNS):
-            string += board[row][col] + "\t"
-        string += "\n"
-    return string
+    return "\n".join(["\t".join(row) for row in reversed(board)])
 
 
 def Ui_Index():
-    indices = ""
-    for i in range(1, COLUMNS+1):
-        indices = indices + str(i) + "\t"
-    return indices
+    return '\t'.join(str(i) for i in range(1, COLUMNS+1))
 
 
 def Ui_Player(player):
-    return "Current Player: " + mv.Player_Symbol(player)
+    return "Current Player: " + mv.Get_Mark(player)
 
 
 def Ui_Turn(turn):
     return "Turn: " + str(turn)
 
 
-def Ui_Games(game):
-    return "Game:" + "\t\t" + str(game)
-
-
 def Ui_Game_Current(game):
     return "Game " + str(game)
 
+def Ui_Games(game):
+    return "Games:" + "\t\t" + str(game)
 
 def Ui_Scoreboard(scoreboard):
-    string = "Draw: " + "\t\t" + str(scoreboard[0]) + "\n"
-    string += "Player " + str(mv.Player_Symbol(1)) + \
-        "\t" + str(scoreboard[1]) + "\n"
-    string += "Player " + str(mv.Player_Symbol(2)) + \
-        "\t" + str(scoreboard[2]) + "\n"
+    string = ""
+    labels = ["Draw\t", 
+              "Player " + str(mv.Get_Mark(1)), 
+              "Player " + str(mv.Get_Mark(2))]
+    for i in range(3):
+        string += f"{labels[i]:<10}\t{scoreboard[i]}\n"
     return string

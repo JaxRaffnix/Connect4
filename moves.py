@@ -1,66 +1,55 @@
-import library
 from settings import *
 
 
-def Board_Init():
-    board = [[DEFAULT_MARK] * COLUMNS for i in range(ROWS)]
-    return board
-
-
-def Player_Setmark(board, player, choice):
+def Set_Mark(board: list[list[str]], player: int, column: int) -> list[list[str]]:
     for row in range(ROWS):
-        if board[row][choice] in (Player_Symbol(player), Player_Symbol(Player_Switch(player))):
-            continue
-        else:
-            board[row][choice] = Player_Symbol(player)
-            return board
-
-
-def Player_Symbol(player):
-    if player == 1:
-        return library.SYMBOL_1
-    elif player == 2:
-        return library.SYMBOL_2
-
-
-def Player_Switch(player):
-    return 3 - player
-
-
-def Player_Undo(board, choice):
-    for row in reversed(range(ROWS)):
-        if board[row][choice] == DEFAULT_MARK:
-            continue
-        else:
-            board[row][choice] = DEFAULT_MARK
+        if board[row][column] == DEFAULT_MARK:
+            board[row][column] = Get_Mark(player)
             break
     return board
 
 
-def Check_Win(board, player):
+def Get_Mark(player: int) ->str:
+    symbol = {1: SYMBOL_1,
+              2: SYMBOL_2}
+    return symbol.get(player)
+
+
+def Switch_Player(player: int) -> int:
+    return 3 - player
+
+
+def Undo_Mark(board: list[list[str]], column: int) -> list[list[str]]:
+    for row in reversed(range(ROWS)):
+        if board[row][column] != DEFAULT_MARK:
+            board[row][column] = DEFAULT_MARK
+            break
+    return board
+
+def Check_Win(board: list[list[str]], player: int) -> bool:
+    mark = Get_Mark(player)
+    # horizontal
     for row in range(ROWS):
         for col in range(COLUMNS - 3):
-            if Player_Symbol(player) == board[row][col] == board[row][col+1] == board[row][col+2] == board[row][col+3]:
+            if all(cell == mark for cell in board[row][col:col+4]):
                 return True
     # vertical
     for row in range(ROWS - 3):
         for col in range(COLUMNS):
-            if Player_Symbol(player) == board[row][col] == board[row+1][col] == board[row+2][col] == board[row+3][col]:
+            if all(board[row][col] == mark for row in range(row, row+4)):
                 return True
     # diagonal right-left descending
-    for row in range(ROWS - 3, ROWS):
-        for col in range(COLUMNS - 3):
-            if Player_Symbol(player) == board[row][col] == board[row-1][col+1] == board[row-2][col+2] == board[row-3][col+3]:
-                return True
-    # diagonal left-right ascending
     for row in range(ROWS - 3):
         for col in range(COLUMNS - 3):
-            if Player_Symbol(player) == board[row][col] == board[row+1][col+1] == board[row+2][col+2] == board[row+3][col+3]:
+            if all(board[row+i][col+i] == mark for i in range(4)):
+                return True
+    # diagonal left-right ascending
+    for row in range(3, ROWS):
+        for col in range(COLUMNS - 3):
+            if all(board[row-i][col+i] == mark for i in range(4)):
                 return True
     return False
 
 
-def Check_Draw(turn):
-    if turn >= 42:
-        return True
-    return False
+def Check_Draw(turn: int) -> bool:
+    return turn >= ROWS * COLUMNS
