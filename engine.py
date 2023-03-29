@@ -31,13 +31,15 @@ def Start_Menu():
     window.close()
     return scores
 
+def Create_Board():
+    return [[DEFAULT_MARK] * COLUMNS for _ in range(ROWS)]
 
 def Play_Round(game):
     # start values
     player = 1
     turn = 1
     choice_history = [0] * CHOICE_HISTORY_MAX
-    board = [[DEFAULT_MARK] * COLUMNS for _ in range(ROWS)]
+    board = Create_Board()
 
     layout = [[psg.Text(Ui_Player(player), key="-PLAYER-"), psg.Push(), psg.Text(Ui_Game_Current(game)), psg.Text(Ui_Turn(turn), key="-TURN-")],
               [psg.Text(Ui_Board(board), key="-BOARD-")],
@@ -73,7 +75,7 @@ def Play_Round(game):
                 psg.popup(f"Win for player {mv.Get_Mark(player)}!")
                 winner = player
                 break
-            elif mv.Check_Draw(turn):
+            elif mv.Check_Draw(board, player):
                 window.refresh()
                 psg.popup(POPUP_TIE)
                 winner = 0
@@ -121,3 +123,6 @@ def Ui_Scoreboard(scoreboard):
     for i in range(3):
         string += f"{labels[i]:<10}\t{scoreboard[i]}\n"
     return string
+
+def preview(input_string):
+    Ui_Board(input_string)

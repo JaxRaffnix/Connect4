@@ -51,5 +51,11 @@ def Check_Win(board: list[list[str]], player: int) -> bool:
     return False
 
 
-def Check_Draw(turn: int) -> bool:
-    return turn >= ROWS * COLUMNS
+def Check_Draw(board, player) -> bool:
+    mark_1 = Get_Mark(player)
+    mark_2 = Get_Mark(Switch_Player(player))
+    for row in range(ROWS):
+        for col in range(COLUMNS):
+            if all(board[row][col] in (mark_1, mark_2)):
+                return True
+    return False
