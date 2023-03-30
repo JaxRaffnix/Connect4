@@ -3,5 +3,5 @@
 import engine as engine
 
 if __name__ == '__main__':
-    endscore = engine.Start_Menu()
+    endscore = engine.Menu()
     print(endscore)

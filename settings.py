@@ -1,6 +1,8 @@
 COLUMNS = 7
 ROWS = 6
-DEFAULT_MARK = "---"
+DEFAULT_MARK = "-"
+
+COLUMN_SEPERATOR = " "
 
 UI_SCALING = 2.5
 CHOICE_HISTORY_MAX = 43
@@ -10,8 +12,8 @@ BUTTON_UNDO = "Undo Move"
 BUTTON_ABORT = "Abort Round"
 POPUP_TIE = "Tie Game!"
 
-SYMBOL_1 = "OOO"
-SYMBOL_2 = "XXX"
+SYMBOL_1 = "O"
+SYMBOL_2 = "X"
 
 # class color:
 #     YELLOW = "\033[93m"

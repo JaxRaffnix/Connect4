@@ -1,31 +1,49 @@
 import math
 import engine as engine
-import moves as mv
+import player as pl
 from settings import *
 
-# import math
-
-PLAYER = 2
+AI_PLAYER = 2
 DEPTH_MAX = 3
 
 
-def minmax(mm_board, is_Max_Turn, depth):
+def Ai_Move(board):
+    column = best_move(board)
+    pl.Set_Mark(board, AI_PLAYER, column)
+    return column
+
+
+def best_move(board):
+    depth = 0
+    best_score = - math.inf
+    best_move = None
+    for column in possible_moves(board):
+        pl.Set_Mark(board, column, AI_PLAYER)
+        score = minmax(board, False, depth)
+        pl.Undo_Mark(board, column)
+        if score > best_score:
+            best_score = score
+            best_move = column
+    return best_move
+
+
+def minmax(board, is_Max_Turn, depth):
 
     depth += 1
     if depth > DEPTH_MAX:
         return 0
-    if mv.Check_Win(mm_board, PLAYER):
+    if pl.Check_Win(board, AI_PLAYER):
         return 1
-    elif mv.Check_Win(mm_board, mv.Switch_Player(PLAYER)):
+    elif pl.Check_Win(board, pl.Switch_Player(AI_PLAYER)):
         return -1
-    elif mv.Check_Draw(mm_board):
+    elif pl.Check_Draw(board, AI_PLAYER):
         return 0
 
     scores = []
-    for col in possible_moves(mm_board):
-        mv.Set_Mark(mm_board, col, PLAYER)
-        scores.append(minmax(mm_board, not is_Max_Turn, depth))
-        mv.Undo_Mark(mm_board, col)
+    for column in possible_moves(board):
+        pl.Set_Mark(board, column, AI_PLAYER)
+        scores.append(minmax(board, not is_Max_Turn, depth))
+        pl.Undo_Mark(board, column)
 
     if is_Max_Turn:
         return max(scores)
@@ -39,21 +57,3 @@ def possible_moves(board):
         if board[ROWS-1][col] == DEFAULT_MARK:
             available_columns += [col]
     return available_columns
-
-
-def best_move(board):
-    depth = 0
-    best_score = - math.inf
-    best_move = None
-    for column in possible_moves(board):
-        mv.Set_Mark(board, column, PLAYER)
-        score = minmax(board, False, depth)
-        mv.Undo_Mark(board, column)
-        if score > best_score:
-            best_score = score
-            best_move = column
-    return best_move
-
-def aiturn(board):
-    column = best_move(board)
-    return mv.Set_Mark(board, PLAYER, column)
