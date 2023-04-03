@@ -2,10 +2,10 @@ COLUMNS = 7
 ROWS = 6
 DEFAULT_MARK = "-"
 
-COLUMN_SEPERATOR = " "
+COLUMN_SEPERATOR = "  "
 
 UI_SCALING = 2.5
-CHOICE_HISTORY_MAX = 43
+CHOICE_LOG_MAX = 43
 BUTTON_START = "Start Round"
 BUTTON_EXIT = "Exit Game"
 BUTTON_UNDO = "Undo Move"
@@ -14,6 +14,9 @@ POPUP_TIE = "Tie Game!"
 
 SYMBOL_1 = "O"
 SYMBOL_2 = "X"
+
+AI_PLAYER = 2
+DEPTH_MAX = 3
 
 # class color:
 #     YELLOW = "\033[93m"

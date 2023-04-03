@@ -44,7 +44,7 @@ def Read_Round(window):
     elif event in [str(i) for i in range(1, COLUMNS+1)]:
         return str(event)
 
-def Update_Turn_Player(window, player, turn):
+def Update_Turn_Player(window, turn, player):
     window["-TURN-"].update(Turn(turn))
     window["-PLAYER-"].update(Player(player))
 
@@ -53,7 +53,7 @@ def Board(board):
 
 
 def Player(player):
-    return "Current Player: " + pl.Get_Mark(player)
+    return "Current Player: " + str(pl.Get_Mark(player))
 
 
 def Turn(turn):

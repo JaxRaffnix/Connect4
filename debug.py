@@ -1,76 +1,30 @@
-# The Minimax algorithm is a decision-making algorithm that is used to find the optimal move in a two-player game. It works by recursively analyzing all possible moves that the player and the opponent can make, up to a certain depth, and assigning a score to each possible outcome. The score reflects the likelihood of winning or losing the game from that position.
-
-# To implement the Minimax algorithm for the Connect 4 game, we need to define the following functions:
-
-# evaluate: This function takes a Connect 4 board and a player's mark as input and returns a score that reflects the likelihood of the player winning the game from the current board position.
-
-# minimax: This function takes a Connect 4 board, a player's mark, a depth, and a boolean flag indicating whether the player is the maximizing player or not. It returns the score of the best move that the player can make.
-
-import copy
-
-def minimax(board, player, depth):
-    if depth == 0 or is_terminal(board):
-        return None, score(board, player)
-
-    best_column = None
-    if player == 1:
-        best_score = -float('inf')
-        for column in range(COLUMNS):
-            if is_valid_move(board, column):
-                new_board = copy.deepcopy(board)
-                drop_mark(new_board, column, player)
-                _, score = minimax(new_board, 2, depth-1)
-                if score > best_score:
-                    best_score = score
-                    best_column = column
-    else:
-        best_score = float('inf')
-        for column in range(COLUMNS):
-            if is_valid_move(board, column):
-                new_board = copy.deepcopy(board)
-                drop_mark(new_board, column, player)
-                _, score = minimax(new_board, 1, depth-1)
-                if score < best_score:
-                    best_score = score
-                    best_column = column
-
-    return best_column, best_score
-
-def is_valid_move(board,
-
-
-
-
-
-
-
-
-##############################
-
-
-def make_best_move():
-    bestScore = -math.inf
-    bestMove = None
-    for move in ticTacBoard.get_possible_moves():
-        ticTacBoard.make_move(move)
-        score = minimax(False, aiPlayer, ticTacBoard)
-        ticTacBoard.undo()
-        if (score > bestScore):
-            bestScore = score
-            bestMove = move
-    ticTacBoard.make_move(bestMove)
-
-def minimax(isMaxTurn, maximizerMark, board):
-    state = board.get_state()
-    if (state is State.DRAW):
+def minmax(board, is_max_turn, depth, alpha=-math.inf, beta=math.inf):
+    if depth == DEPTH_MAX:
         return 0
-    elif (state is State.OVER):
-        return 1 if board.get_winner() is maximizerMark else -1
+    if eng.Check_Win(board, AI_PLAYER):
+        return 1
+    elif eng.Check_Win(board, eng.Switch_Player(AI_PLAYER)):
+        return -1
+    elif eng.Check_Draw(board, AI_PLAYER):
+        return 0
 
-    scores = []
-    for move in board.get_possible_moves():
-        board.make_move(move)
-        scores.append(minimax(not isMaxTurn, maximizerMark, board))
-        board.undo()
+    if is_max_turn:
+        value = -math.inf
+        for column in possible_moves(board):
+            pl.Set_Mark(board, AI_PLAYER, column)
+            value = max(value, minmax(board, False, depth+1, alpha, beta))
+            pl.Undo_Mark(board, column)
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+    else:
+        value = math.inf
+        for column in possible_moves(board):
+            pl.Set_Mark(board, eng.Switch_Player(AI_PLAYER), column)
+            value = min(value, minmax(board, True, depth+1, alpha, beta))
+            pl.Undo_Mark(board, column)
+            beta = min(beta, value)
+            if beta <= alpha:
+                break
 
-    return max(scores) if isMaxTurn else min(scores)
+    return value

@@ -1,4 +1,5 @@
 # import PySimpleGUI as psg
+from time import sleep
 import MinMaxAi as mma
 import player as pl
 from settings import *
@@ -19,7 +20,6 @@ def Menu():
             window["-GAMES-"].update(ui.Games(game))
             window.refresh()
             winner = Play_Round(game, aimode)
-            print("DEBUG")
             if winner == -1:
                 break
             playerscore[winner] += 1
@@ -31,51 +31,79 @@ def Menu():
 def Play_Round(game, aimode):
     player = 1
     turn = 1
-    choice_history = [0] * CHOICE_HISTORY_MAX
+    choice_log = [0] * CHOICE_LOG_MAX
     board = [[DEFAULT_MARK] * COLUMNS for _ in range(ROWS)]
     window = ui.Round(game, aimode, board, player, turn)
 
     while True:
-        input = ui.Read_Round(window)
-        if input == "abort":
+        ui_input = ui.Read_Round(window)
+        if ui_input == "abort":
             winner =  Switch_Player(player)
             break
-        elif input == "exit":
+        elif ui_input == "exit":
             winner = -1
-            break
-        elif input == "undo" and turn > 1:
+            break 
+        elif ui_input == "undo" and turn > 1:
             turn -= 1
-            pl.Undo_Mark(board, choice_history[turn])
-            window["-BOARD-"].update(ui.Board(board))
+            pl.Undo_Mark(board, choice_log[turn])
             player = Switch_Player(player)
+            window["-BOARD-"].update(ui.Board(board))
             ui.Update_Turn_Player(window, turn, player)
-        elif input in [str(i) for i in range(1, COLUMNS+1)]:
-            choice = int(input) - 1
+        elif valid_input(ui_input):
+            choice = int(ui_input) - 1
             try:
-                pl.Set_Mark(board, player, choice)
+                place_mark(window, choice_log, board, player, turn, choice)
             except IndexError:
                 ui.Msg_Col(choice)
-                continue
-            choice_history[turn] = choice
-            window['-BOARD-'].update(ui.Board(board))
-            if Check_Win(board, player):
-                window.refresh()
-                ui.Msg_Win(player)
-                winner = player
-                break
-            elif Check_Draw(board, player):
-                window.refresh()
-                winner = 0
-                break
+                continue            
+            if check_endgame(window, board, player):
+                if Check_Win(board, player):
+                    winner = player
+                    break
+                else:
+                    winner = 0
+                    break
             turn += 1
-            player = Switch_Player(player)
+            player= Switch_Player(player)
+            
+            if turn % 2 == 0 and aimode:
+                window.refresh()
+                choice = mma.Ai_Move(board) 
+                place_mark(window, choice_log, board, player, turn, choice)
+                if check_endgame(window, board, player):
+                    if Check_Win(board, player):
+                        winner = player
+                        break
+                    else:
+                        winner = 0
+                        break
+                turn += 1
+                player = Switch_Player(player)
             ui.Update_Turn_Player(window, turn, player)
     window.close()
-    print("Here DEBUG")
-    # return winner
+    return winner
+
+def place_mark(window, choice_log, board, player, turn, choice):
+    pl.Set_Mark(board, player, choice)
+    choice_log[turn] = choice
+    window["-BOARD-"].update(ui.Board(board))
 
 
-def Check_Win(board: list[list[str]], player: int) -> bool:
+def valid_input(ui_input):
+    return ui_input in [str(i) for i in range(1, COLUMNS+1)]
+
+def check_endgame(window, board, player):
+    if Check_Win(board, player):
+        window.refresh()
+        ui.Msg_Win(player)
+        return True
+    elif Check_Draw(board, player):
+        window.refresh()
+        ui.Msg_Tie()
+        return True
+    return False
+
+def Check_Win(board: list[list[str]], player: int):
     mark = pl.Get_Mark(player)
     # horizontal
     for row in range(ROWS):
