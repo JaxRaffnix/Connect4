@@ -1,5 +1,5 @@
 # import PySimpleGUI as psg
-from time import sleep
+# from time import sleep
 import MinMaxAi as mma
 import player as pl
 from settings import *
@@ -65,7 +65,8 @@ def Play_Round(game, aimode):
                     break
             turn += 1
             player= Switch_Player(player)
-            
+            ui.Update_Turn_Player(window, turn, player)
+
             if turn % 2 == 0 and aimode:
                 window.refresh()
                 choice = mma.Ai_Move(board) 
@@ -79,7 +80,7 @@ def Play_Round(game, aimode):
                         break
                 turn += 1
                 player = Switch_Player(player)
-            ui.Update_Turn_Player(window, turn, player)
+                ui.Update_Turn_Player(window, turn, player)
     window.close()
     return winner
 
