@@ -1,6 +1,6 @@
 # import PySimpleGUI as psg
 # from time import sleep
-import MinMaxAi as mma
+import minmaxai as mma
 import player as pl
 from settings import *
 import interface as ui
